@@ -44,7 +44,7 @@ def check_userid_format(userid):
         return "\nUserid can't be empty."
     return None   # None means "no problem"
 
-# returns true if password format is invalid
+# returns an error message if password format is invalid
 def check_password_format(password):
     if ':' in password:
         return "\nColons are not allowed."
@@ -198,7 +198,10 @@ def home(userid):
             clear_console()
             change_password(userid)
         elif choice == '2':
-            pass
+            clear_console()
+            isdeleted = delete_account(userid)
+            if isdeleted:
+                return # user deleted, back to main page (login)
         elif choice == '3':
             pass
         elif choice == '4':
@@ -212,6 +215,7 @@ def home(userid):
 def changeuserid(userid):
 
     while True:
+        clear_console()
         users = load_users()
         print(f'Hi, {userid}!')
         print('Create a new userid. A colon \':\'or space is not allowed\n\nType -quit to go back to home page')
@@ -285,4 +289,40 @@ def change_password(userid):
         return
     return
 
+def delete_account(userid):
+    clear_console()
+    # Confirm
+    while True:
+        print(f'Hi, {userid}!')
+        choice = input('Are you sure you want to delete your account? This is not reversible [y/n]: ')
+        if choice.lower() == 'y':
+            break
+        if choice.lower() == 'n':
+            return None
+        print("\nPlease enter 'y' or 'n'.")
+        time.sleep(1)
+        clear_console()
+
+    # Password verify
+
+    while True:
+        users = load_users()
+        print('\nType -quit to go back to home page')
+        password = input('Please enter your password to continue deleting your account: ')
+        if password == '-quit':
+            return None
+        if password == users[userid]:
+            break
+        print('\nIncorrect password, please try again.')
+        time.sleep(1)
+        clear_console()
+
+    # Delete
+    del users[userid]
+    save_users(users)
+    clear_console()
+    print(f'Sorry to see you go, {userid}. Bye!')
+    time.sleep(2)
+    return True
+        
 main()
