@@ -23,7 +23,7 @@ def load_users():
         pass
     return users
 
-# accepts the users dictionary and overwrite it in the file
+# accepts a modified users dictionary and overwrite it in the file
 def save_users(users):
     with open('database.txt', 'w') as f:
         for userid, password in users.items():
@@ -43,6 +43,14 @@ def check_userid_format(userid):
     if not userid:
         return "\nUserid can't be empty."
     return None   # None means "no problem"
+
+# returns true if password format is invalid
+def check_password_format(password):
+    if ':' in password:
+        return "\nColons are not allowed."
+    if not password:
+        return "\nPassword can't be empty."
+    return None
 
 def login():
     while True:
@@ -90,9 +98,18 @@ def register():
         while True:    
             print('Now, create your password. A colon \':\' is not allowed\n\nType -quit to go back to main menu')
             firstpassword = input('Enter password: ')
+
             if firstpassword == '-quit':
                 clear_console()
                 return
+            
+            isinvalid = check_password_format(firstpassword)
+            
+            if isinvalid:
+                clear_console()
+                print(isinvalid, "Please try again.")
+                time.sleep(1)
+                continue
 
             confirmpassword = input('Confirm your password: ')
             if firstpassword != confirmpassword:
@@ -158,6 +175,7 @@ def main():
             clear_console()
             continue
 
+#home page
 def home(userid):  
     while True:
         print(f'Welcome to our system, {userid}!')
@@ -177,7 +195,8 @@ def home(userid):
             clear_console()
             userid = changeuserid(userid)
         elif choice == '1':
-            pass
+            clear_console()
+            change_password(userid)
         elif choice == '2':
             pass
         elif choice == '3':
@@ -225,5 +244,45 @@ def changeuserid(userid):
         time.sleep(2)
         clear_console()
         return newuserid
+
+def change_password(userid):
+
+    while True:
+        users = load_users()
+        print(f'Hi, {userid}!')
+        print('Create a new password. A colon \':\' is not allowed\n\nType -quit to go back to home page')
+        password = input('Please enter your current password: ')
+
+        if password == '-quit':
+            break
+
+        if password != users[userid]:
+            clear_console()
+            print('\nIncorrect password, please try again.')
+            time.sleep(1)
+            continue
+
+        newpassword = input('\nPlease enter your new password: ')
+        error = check_password_format(newpassword)
+        if error:
+            clear_console()
+            print(error, "Please try again.")
+            time.sleep(1)
+            continue
+
+        confirmnewpassword = input('Please confirm your new password: ')
+        if newpassword != confirmnewpassword:
+            clear_console()
+            print('\nYour new password doesn\'t match, please try again.')
+            time.sleep(1)
+            continue
+
+        users[userid] = newpassword
+        save_users(users)
+        clear_console()
+        print('\nYou have successfully changed your password.')
+        time.sleep(1)
+        return
+    return
 
 main()
