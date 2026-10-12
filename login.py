@@ -30,7 +30,7 @@ def save_users(users):
             f.write(f"{userid}:{password}\n")
 
 # returns true if userid is available
-def is_userid_avaialable(userid):
+def is_userid_available(userid):
     users = load_users()
     return userid not in users
 
@@ -139,7 +139,7 @@ def register():
             clear_console()
             return
         else:
-            if is_userid_avaialable(userid) is False:
+            if is_userid_available(userid) is False:
                 print('\nThis userid is taken, please try again\n')
                 time.sleep(1)
                 clear_console()
@@ -203,7 +203,7 @@ def home(userid):
             if isdeleted:
                 return # user deleted, back to main page (login)
         elif choice == '3':
-            pass
+            view_all_users()
         elif choice == '4':
             return
         else:
@@ -235,12 +235,13 @@ def changeuserid(userid):
         if newuserid == '-quit':
             clear_console()
             return userid
-        if not is_userid_avaialable(newuserid):
+        if not is_userid_available(newuserid):
             print('\nThis userid is already taken, please try again.')
             time.sleep(1)
             clear_console()
             continue
 
+        # users.pop(userid) delete the old userid then assign its password to the new userid added on the dictionary
         users[newuserid] = users.pop(userid)
         save_users(users)
         clear_console()
@@ -258,7 +259,7 @@ def change_password(userid):
         password = input('Please enter your current password: ')
 
         if password == '-quit':
-            break
+            return
 
         if password != users[userid]:
             clear_console()
@@ -324,5 +325,21 @@ def delete_account(userid):
     print(f'Sorry to see you go, {userid}. Bye!')
     time.sleep(2)
     return True
-        
+
+def view_all_users():
+    clear_console()
+    users = load_users()
+    if not users:
+        print('\nNo users registered yet.')
+        time.sleep(2)
+        clear_console()
+        return
+    print('userid, password')
+    for user in sorted(users):
+        print(f'{user}, {users[user]}')
+
+    input('\nPress Enter to continue...')
+    clear_console()
+
+
 main()
